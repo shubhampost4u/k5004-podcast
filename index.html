@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>K-5004 Law Podcast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Hind:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#110e0a;--bg2:#1b1611;--bg3:#262016;--fg:#f2e8d4;--fg2:#c4ae86;--fg3:#7d6d52;
+  --accent:#f07820;--accent2:#c45c00;--ok:#5fd28a;--border:#30281b;--now:rgba(240,120,32,.22);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root{
+  --bg:#faf6ef;--bg2:#f1ebdf;--bg3:#e7dfcf;--fg:#1d150a;--fg2:#4d412c;--fg3:#86775c;
+  --accent:#c45c00;--accent2:#8f3f00;--ok:#1b7a3e;--border:#dcd2bf;--now:rgba(196,92,0,.14);
+  color-scheme:light;}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:'Hind',system-ui,sans-serif;font-size:15px;line-height:1.6;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+h1,h2,.d{font-family:'Baloo 2',system-ui,sans-serif}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 120px}
+
+/* player */
+.player{position:sticky;top:0;z-index:5;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px 10px}
+.pi{max-width:760px;margin:0 auto}
+.top{display:flex;gap:12px;align-items:center}
+.art{width:52px;height:52px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:24px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.meta{min-width:0;flex:1}
+.show{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3)}
+.ttl{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:1rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{font-size:12px;color:var(--accent);font-weight:600;min-height:18px}
+.bar{display:flex;align-items:center;gap:8px;margin:10px 0 8px;font-variant-numeric:tabular-nums;font-size:11px;color:var(--fg3)}
+.bar input{flex:1;accent-color:var(--accent)}
+.ctl{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.ib{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:17px;color:var(--fg2)}
+.ib:hover{background:var(--bg3);color:var(--fg)}
+.pp{width:52px;height:52px;background:var(--accent);color:#fff;font-size:20px}
+.pp:hover{background:var(--accent2);color:#fff}
+.pill{border:1px solid var(--border);background:var(--bg3);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;font-family:'Baloo 2',sans-serif;color:var(--accent)}
+select.pill{appearance:none}
+
+/* episode list */
+h2.sec{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);margin:18px 0 8px}
+.eps{display:grid;gap:6px}
+.ep{display:flex;gap:10px;align-items:center;text-align:left;width:100%;padding:10px 12px;border:1px solid var(--border);
+  border-radius:12px;background:var(--bg2)}
+.ep:hover{border-color:var(--accent)}
+.ep.on{background:var(--now);border-color:var(--accent)}
+.n{width:26px;height:26px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11px;font-weight:700;
+  background:var(--bg3);color:var(--fg2);font-family:'Baloo 2',sans-serif}
+.ep.on .n{background:var(--accent);color:#fff}
+.et{font-weight:600;font-size:13.5px;line-height:1.3}
+.eb{font-size:11px;color:var(--fg3)}
+.ok{color:var(--ok);font-size:11px;margin-left:auto;flex:none}
+
+/* transcript */
+.tr{margin-top:6px;display:grid;gap:2px}
+.s{padding:7px 10px;border-left:3px solid transparent;border-radius:8px;color:var(--fg2);cursor:pointer}
+.s:hover{background:var(--bg2)}
+.s.now{background:var(--now);border-left-color:var(--accent);color:var(--fg)}
+.s.past{color:var(--fg3)}
+.err{background:rgba(240,80,32,.12);border:1px solid var(--accent);border-radius:10px;padding:10px 12px;font-size:13px;margin-top:10px;display:none}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--accent);border-right-color:transparent;border-radius:50%;
+  animation:r .8s linear infinite;vertical-align:-1px;margin-right:6px}
+@keyframes r{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="player"><div class="pi">
+  <div class="top">
+    <div class="art">⚖️</div>
+    <div class="meta">
+      <div class="show">K-5004 · Land Laws Podcast</div>
+      <div class="ttl" id="ttl">…</div>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+  <div class="bar"><span id="cur">0:00</span><input id="seek" type="range" min="0" max="1000" value="0" aria-label="Seek"><span id="dur">0:00</span></div>
+  <div class="ctl">
+    <button class="ib" id="prev" title="Previous episode" aria-label="Previous episode">⏮</button>
+    <button class="ib" id="back" title="Back 15 seconds" aria-label="Back 15 seconds">↺</button>
+    <button class="ib pp" id="play" aria-label="Play">▶</button>
+    <button class="ib" id="fwd" title="Forward 15 seconds" aria-label="Forward 15 seconds">↻</button>
+    <button class="ib" id="next" title="Next episode" aria-label="Next episode">⏭</button>
+    <button class="pill" id="speed" aria-label="Playback speed">1×</button>
+  </div>
+</div></div>
+
+<div class="wrap">
+  <div class="err" id="err"></div>
+  <h2 class="sec" id="trHead">Transcript</h2>
+  <div class="tr" id="tr"></div>
+  <h2 class="sec">Episodes</h2>
+  <div class="eps" id="eps"></div>
+</div>
+
+<audio id="au" preload="auto"></audio>
+<script id="__data" type="application/json">[{"title": "Welcome & Exam Pattern", "badge": "Intro", "script": ["Namaste, bhai! Welcome to K-5004 Land Laws Podcast — tera night-before exam companion.", "Aaj hum cover karenge UP Revenue Code 2006 — complete syllabus — ek senior ki tarah!", "Pehle exam pattern samajh lo.", "CCS University mein 3 sections hain.", "Section A mein 5 questions aate hain, har ek 4 marks ka — total 20 marks.", "Ye definitions aur short notes hote hain, sirf 75 words chahiye.", "Section B mein 3 mein se 2 questions karne hain, har ek 10 marks ka — total 20 marks.", "Section C mein 5 mein se 3 questions karne hain, har ek 20 marks ka — total 60 marks.", "Sunna — Section C pe full 60% marks hain!", "Wahan 3 essays achhe likhne hain — Asami, Classes of Tenure, aur Revenue Courts — ye three pakka karo.", "Teri strategy? Pehli ghante mein definitions ratt lo.", "Doosri ghante mein Section B ke top answers cover karo.", "Teesri ghante mein Section C ke 5 major essays.", "3 ghante focus, phir rest. Let's go!"]}, {"title": "Section A: People & Officials", "badge": "Hour 1 · Sec A", "script": ["Section A — Group 1: People aur Officials.", "Pehli definition — Agriculture Labourer, Section 4(3).", "Verbatim definition hai: Agriculture labourer means a person who works on land for hire, whether in cash or kind, but does not himself cultivate any land.", "Yaad kaise rakhein? Hire pe kaam, apni zameen nahi — woh Agriculture Labourer hai.", "Ab doosri — Collector, Section 4(8).", "Collector means the Collector of a district and includes an Additional Collector and any Revenue Officer specially empowered by the State Government.", "Key point — Additional Collector bhi included hai!", "Teesri — Board of Revenue, Section 4(6).", "Board means the Board of Revenue for Uttar Pradesh established under the U.P. Board of Revenue Act, 1922.", "Sabse badi revenue court. 1922 se chal rahi hai. Final authority!", "Chauthi — Revenue Officer, Section 4(17).", "Revenue Officer means any officer appointed or empowered under this Code to exercise the functions of a Revenue Officer.", "Broad definition hai — Board, Commissioner, Collector, SDO, Tahsildar, Naib-Tahsildar — sab Revenue Officers hain.", "Paanchvi — Revenue Court, Section 4(16).", "Revenue Court means any court or officer who is empowered to hear and determine suits and applications under this Code.", "Civil courts inke maamlon mein dakhal nahi de sakti — ye Section 206 kehta hai.", "Chhatvi — Intermediary, Section 4(24).", "Intermediary means a person who was, immediately before the Zamindari Abolition Act 1950, entitled to collect rent as a proprietor or sub-proprietor.", "ZA&LR Act 1950 se pehle ke bade zamindars — ab historical reference hai sirf.", "In 6 definitions ko ratt lo — Section A mein seedha pooch sakte hain!"]}, {"title": "Section A: Land Types & Agriculture", "badge": "Hour 1 · Sec A", "script": ["Group 2 aur 3 — Land Types aur Agriculture definitions.", "Pehli — Abadi, Section 4(1).", "Abadi means the area within the limits of a village occupied or used, or set apart for the purposes of the residence of the inhabitants of the village.", "Simple hai — village ka residential zone. Abadi allotment S.64 mein covered hai.", "Doosri — Grove Land, Section 4(11).", "Grove land means land used for or in the occupation of a grove — a collection of trees whether or not mixed with other plants, used for the purposes of the inhabitants of a village.", "Gram Panchayat ko entrusted hoti hai grove land.", "Teesri — Land, Section 4(14).", "Land includes benefits to arise out of land, things attached to the earth, and also includes fisheries in tanks, ponds, rivers, or any other water on or appertaining to the land.", "Very broad! Sirf mitti nahi — benefits, buildings, fisheries — sab Land hai!", "Chauthi — Holding, Section 4(12).", "Holding means the land or lands held by a tenure-holder and entered in a single set of papers prepared under this Code.", "Ek naam, ek khata, woh ek holding hai.", "Ab Agriculture, Section 4(2) — ye BAHUT important hai.", "Agriculture includes horticulture, the raising of crops, dairy farming, poultry farming, stock breeding, the use of land as grazing ground, forest products, and fish farming in tanks.", "Sirf khet nahi — dairy, poultry, fisheries — sab agriculture hai! Exam mein zaroor aata hai.", "Agricultural Year, Section 4(23).", "Agricultural year means the year commencing on the first day of July and ending on the thirtieth day of June next following.", "July 1 se June 30 tak. Fasli year. Abandonment, succession — sab isi pe calculate hota hai.", "Village Artisan, Section 4(21).", "Village artisan means a person who, by tradition or otherwise, exercises a craft in a village for the benefit of the village community as a whole and depends upon the village community for his livelihood.", "Blacksmith, carpenter, weaver — jo community ke liye kaam kare aur community pe dependent ho.", "Village Artisan ko Abadi allotment mein priority milti hai — SC/ST/OBC/BPL ke saath."]}, {"title": "Section A: Institutions & Records", "badge": "Hour 1 · Sec A", "script": ["Group 4 — Institutions aur key records.", "Pehli — BPS — Bhumi Prabandhak Samiti, Section 4(5).", "BPS means the Bhumi Prabandhak Samiti constituted under this Code.", "Ye Gram Panchayat ki executive arm hai. S.60 ke under land management karna iska kaam hai.", "Bank, Section 4(4).", "Bank means a scheduled bank as defined in the Reserve Bank of India Act 1934, and includes a co-operative society registered under the U.P. Co-operative Societies Act 1965, and the State Agro Industries Corporation.", "Teen types — scheduled bank, UP cooperative society, State Agro Industries Corporation.", "Family, Section 4(10) — bahut important for succession aur ceiling.", "Family means a man, his wife or wives, and their minor children living with him as a unit. When the person is a minor, it includes his father.", "Ab quick fire land records — ek ek minute mein samajh lo.", "Khasra — field book. Har plot ka individual number, area, aur type ka record. Survey ke time banta hai.", "Khatauni — Record of Rights. Har 6 saal mein prepare hota hai. 13 columns hote hain. Collector ki superintendence mein, Lekhpal bhart karta hai.", "Kisan Bahi — Section 41. District ke saare holdings ka consolidated pass-book. Khatauni prepare hone pe milti hai. Bank loan endorsement Kisan Bahi pe hoti hai.", "False affidavit dene pe 3 saal tak imprisonment hai — ye bhool mat!", "Gaon Fund — Section 68. Gram Panchayat ka central fund. BPS administer karta hai, Tahsildar ki general supervision mein.", "Gaon Fund ki 8 income sources yaad rakho — mnemonic PSZTHGLA.", "Panchayat tax, State sums, Zila Parishad, Tehbajari, Hats/melas, Garbage, Loan/gift, Any other State order.", "Section A ke liye ye sab definitions kafi hain. Chalo Section B ki taraf!"]}, {"title": "Section B: Exchange, Escheat & Abandonment", "badge": "Hour 2 · Sec B", "script": ["Section B mein sirf 2 answers dene hain 3 mein se. 10-10 marks ke hain. Chalo top questions cover karte hain.", "Pehla — Exchange, Section 101 aur 102.", "Exchange means when two land-holders exchange their holdings with each other by mutual agreement.", "Exchange ke liye rules kya hain? Teen zaruri conditions.", "First — sirf Bhumidhar with Transferable Rights hi exchange kar sakta hai.", "Second — dono plots same district mein hone chahiye.", "Third — Collector ki prior written permission leni padegi.", "Exchange ke consequences, Section 102.", "Ek — land revenue equal ho jaati hai ya adjust hoti hai.", "Do — purani encumbrances apni apni zameen pe rehti hain, transfer nahi hoti.", "Teen — ek Bhumidhar ki zameen doosre mein vest ho jaati hai with all rights.", "Mnemonic: Permission plus Same District plus Revenue Equalized plus Old Encumbrances Stay.", "Ab Escheat, Section 115.", "Escheat tab hota hai jab Bhumidhar ya Asami bina kisi waris ke marta hai.", "Process: SDO possession leta hai. SDO ek agricultural year ke liye lease de sakta hai.", "3 saal ke andar — koi bhi claimant SDO ke paas apply kar sakta hai.", "SDO inquiry karega, phir allow ya reject karega.", "1 saal ke andar rejected claimant suit file kar sakta hai court mein.", "Agar 3 saal mein koi nahi aaya, ya suit finally dismiss ho gayi — holding Gram Panchayat mein vest ho jaati hai.", "Ab Abandonment, Section 122 aur 123.", "Abandonment tab hota hai jab teen conditions saath hon.", "Ek — 3 continuous agricultural years tak land revenue nahi diya.", "Do — 3 saal tak zameen agriculture ke liye use nahi ki.", "Teen — village chhod gaya, whereabouts unknown.", "Tab Collector inquiry karke possession leta hai.", "Bhumidhar ke paas 3 saal hain apna claim dene ke liye — sab dues deke wapas le sakta hai.", "Consequences, Section 123: Holding absolutely vests in State Government, free from all encumbrances. Bhumidhar ka koi right nahi rehta.", "Note: Section 80 ki declaration agar hai to abandonment applicable nahi hoga."]}, {"title": "Section B: Recovery of Arrears & Succession", "badge": "Hour 2 · Sec B", "script": ["Section B ke aur important topics.", "Recovery of Arrears of Land Revenue — Section 170 to 178.", "Section 170 mein 7 recovery processes hain — mnemonic AMBAL-RI yaad karo.", "A — Arrest and detention of the defaulter.", "M — Attachment and sale of movable property including agricultural produce.", "B — Attachment of bank account or locker.", "A — Attachment of land for which arrear is due.", "L — Lease or sale of land.", "R — Appointment of Receiver for any property.", "I — Attachment and sale of other immovable property.", "Key timelines: Movable property — 30 din ke baad sale ho sakti hai agar arrears nahi diye.", "Holding attachment — 30 din ke baad Collector lease ya sale proceed karta hai.", "Lease of holding maximum 10 saal ke liye ho sakti hai — Section 175.", "Receiver ka interim order — 2 hafte mein notice issue na ho to order automatically vacate ho jaata hai.", "Kya exempt hai movable attachment se? Mnemonic WTR.", "W — Wearing apparel, cooking vessels, beds, bedding of family, aur women ke personal ornaments.", "T — Tools of village artisan, agriculturist implements, cattle, aur seeds for livelihood.", "R — Religious worship articles exclusively set apart.", "Ab Male Bhumidhar ki Succession, Section 108.", "Ek hi clause ke heirs equal shares mein inheritance lete hain.", "Order hai: A — Widow, unmarried daughter, male lineal descendants per stirpes.", "B — Mother aur Father.", "D — Married daughter. C clause delete ho gaya UP Act No. 4 of 2016 se.", "E — Brother same father se, unmarried sister, predeceased brother ka son.", "F onwards — Son's daughter, Father's mother, Father's father, Daughter's son, Married sister.", "Multiple widows — saath milke ek share leti hain.", "Female Tenure Holder ki Succession, Section 110.", "Order: A — Son, unmarried daughter, son's son, predeceased son's widow, equal shares.", "B — Husband.", "D — Married daughter. E — Daughter's son. F — Father.", "G — Widowed mother. H — Brother same father. I — Unmarried sister. J — Married sister.", "Devolution conditions: Child in womb at time of death is treated as born. Where two died together, younger presumed to survive elder. Murderer is disqualified."]}, {"title": "Section B: Transfer Restrictions & BPS", "badge": "Hour 2 · Sec B", "script": ["Aur kuch important Section B topics.", "Transfer Restrictions — Sections 88 to 99.", "Section 88: BTR — Bhumidhar with Transferable Rights — apni interest transfer kar sakta hai.", "BNTR ya Asami apni interest transfer NAHI kar sakta.", "Section 89(2): Transferee ki land uski family ki land ke saath milake 5.0586 hectare se zyada NAHI honi chahiye UP mein.", "Mortgage Restrictions, Sections 91 to 93.", "Koi bhi Bhumidhar possession transfer mortgage nahi kar sakta as security.", "BNTR sirf State Government ya Bank ko possession ke bina mortgage kar sakta hai.", "Agar possession transfer mortgage kiya to woh Sale maana jaayega — Section 93.", "SC/ST Restrictions, Sections 98 aur 99.", "SC Bhumidhar — agar non-SC ko sell, gift, mortgage, ya lease karna ho — Collector ki written permission zaroori hai.", "Same rule ST Bhumidhar ke liye non-ST ke saath.", "Disabled Person Lease, Section 95.", "Disabled Bhumidhar ya Asami apni holding maximum 3 saal ke liye lease out kar sakta hai.", "10 categories of disabled persons hain — mentally ill, physically infirm, widow, unmarried woman, married woman deserted by husband, minor jiska baap dead hai, student below 35 years, military person, person under detention, aur others prescribed.", "Bank ko 1 saal se zyada ke liye nahi le sakta — Section 95(2).", "BPS Superintendence, Section 60.", "BPS 9 specific duties hain: land settlement, forests aur trees, abadi aur village communications, hats bazars melas, fisheries aur tanks, cottage industries, agriculture development, conduct of suits, aur prescribed other matters.", "Abadi Sites Allotment, Section 64.", "Priority order: Pehle — Agricultural labourer ya village artisan jo SC/ST/OBC/BPL ho aur Gram Sabha mein rehta ho.", "Doosra — Any other agricultural labourer ya village artisan in Gram Sabha.", "Teesra — Any other SC/ST/OBC/BPL person in Gram Sabha.", "Special: Widow aur physically handicapped ko same category mein preference milti hai.", "Section 80 Declaration — SDO 45 working days mein decision deta hai. Apni residential use ke liye koi fee nahi!"]}, {"title": "Essay 1: Asami — Classes & Rights", "badge": "Hour 3 · Sec C", "script": ["Section C Essay 1 — Asami. 20 marks ka question hai. Structure follow karo.", "Introduction likho: Asami UP Revenue Code 2006 mein ek smaller form of land tenure holder hai.", "Section 78 define karta hai Asami ko — interest heritable hai lekin permanent aur transferable NAHI.", "Asami 4 main categories mein hote hain.", "Pehli — jo Code ke commencement se pehle asami tha aur Khatauni mein class 3 mein recorded tha.", "Doosri — Bhumi Prabandhak Samiti ka admitted lessee.", "Teesri — Bhumidhar ka admitted lessee.", "Chauthi — jo kisi bhi tarah se Code ya other law ke under asami rights acquire kare.", "Ab 15 historical categories — ye Zamindari Abolition se aaye hain.", "Category 1: Allottee of Sir or Khudkasht land in lieu of Maintenance Allowance.", "Category 2: Thekadar of Sir aur Khudkasht land for unexpired period or 5 years, whichever is less.", "Category 3: Thekadar holding excess of 30 acres — sirf excess part asami hai.", "Category 4: Grove land occupant under Section 21(2).", "Category 5: Non-occupancy tenant of intermediary's grove land.", "Category 6: Sub-tenant of grove land.", "Category 7: Lessee from Bhumidhar or Sirdar.", "Category 8: Person admitted by BPS.", "Category 9: Sub-tenant under proviso to Section 27(3) of UP Tenancy Amendment Act 1947.", "Category 10: Non-occupancy tenant of pasture, water, singhara land, or river bed casual cultivation.", "Category 11: Non-occupancy tenant of Taungya land.", "Category 12: Tenant of Har-tareta tracts in Jhansi district and Bundelkhand.", "Category 13: Court lessee under Section 252(1) of UP Tenancy Act 1939.", "Category 14: Tenant of Sir of Smaller Intermediary.", "Category 15: Under the Code — Disabled Bhumidhar ka lessee.", "Nature of rights: Asami ki interest heritable hai — succession mein ja sakti hai — lekin transferable NAHI.", "Leading cases — teen cases yaad karo.", "Samharu versus Dharamraj Pandey, AIR 1970 Allahabad 350 — mortgagee word broadly interpret kiya gaya.", "Bishwanath Pandey versus Mst. Badami, 1980 — allottee of Sir/Khudkasht in lieu of maintenance is asami.", "Yogendra Vikram Singh versus Krishna Kumar Singh, 1977 — widow ke maintenance ke liye allottee absolute owner ban jaata hai.", "Conclusion mein likho ki Asami provision Zamindari Abolition ke baad revolutionary social reform ka hissa hai."]}, {"title": "Essay 2: Classes of Tenure", "badge": "Hour 3 · Sec C", "script": ["Section C Essay 2 — Classes of Tenure. Sections 74 to 76.", "Introduction: UP Revenue Code 2006 mein Section 74 ke under 4 classes of tenure-holders hain.", "Mnemonic B2AG — BTR, BNTR, Asami, Government Lessee.", "Class 1 — Bhumidhar with Transferable Rights, BTR, Section 75.", "Ye sabse strong tenure hai. Sell, mortgage, gift — sab kar sakta hai Code ke restrictions ke subject.", "BTR kaun hai? Jo Code ke commencement se pehle BTR tha — ya jo commencement ke baad BTR rights acquire kare.", "BNTR ko bhi BTR banne ka mauka milta hai — Section 76(3) ke under 5 saal baad automatic BTR ban jaata hai!", "Class 2 — Bhumidhar with Non-Transferable Rights, BNTR, Section 76.", "BNTR apni holding transfer NAHI kar sakta generally.", "Sirf State Government ya Bank ko possession ke bina mortgage kar sakta hai.", "BNTR kaun hai? Jo Code commencement se pehle BNTR tha.", "Jo BPS ne BNTR ke roop mein admit kiya.", "UP Bhoodan Yajna Act 1952 ke under allottee.", "UP Ceiling Act 1960 ke under allottee.", "Annual Register ki class 3 mein recorded asami — Section 76(dd).", "Important — BNTR 5 saal baad BTR ban jaata hai — Section 76(3).", "Lekin Section 76(4) kehta hai — agar woh BTR hone ke baad apni zameen bechta hai — to woh Gram Panchayat, State Government, ya Ceiling surplus land ka lease nahi le sakta.", "Class 3 — Asami — heritable but not transferable. Smallest tenure.", "Class 4 — Government Lessee — directly State Government se lease pe. Na Bhumidhar, na Asami. Special rules apply hote hain.", "Rights comparison: BTR — sale, mortgage, gift, exchange sab. BNTR — limited, mortgage without possession only. Asami — sirf use aur inheritance. Government Lessee — lease terms ke hisaab se.", "Conclusion: Tenure system Zamindari Abolition ke baad new social order establish karta hai jahan cultivator hi owner hai."]}, {"title": "Essay 3: Khatauni — Record of Rights", "badge": "Hour 3 · Sec C", "script": ["Section C Essay 3 — Khatauni.", "Introduction: Khatauni yani Record of Rights — land administration ka core document.", "Section 31 ke under har 6 saal mein ek naya Khatauni prepare hota hai.", "Collector ki superintendence mein Lekhpal bhart karta hai.", "Khatauni mein 13 columns hote hain — inhe order mein yaad karo.", "Column 1 aur 2 — Khata ka serial number aur Khasra ka serial number.", "Column 3 — Tenure-holder ka naam, baap ka naam, aur niwas.", "Column 4 — Tenure commencement ka saal.", "Column 5 — Har plot ka Khasra number.", "Column 6 — Har plot ka area.", "Columns 7 se 12 — Land revenue ya rent payable — 6 Fasli years ke liye, Fasli 1 se Fasli 6 tak.", "Column 13 — Change ka saransh, tarikh, aur authority.", "Red ink system: Column 7 pehle saal ke liye. Phir 8, 9, 10, 11, aur 12 subsequent years ke liye.", "Columns 1 se 6 mein 6 saalon mein koi change nahi — sirf columns 7 to 12 change hote hain.", "Annual changes kaise hote hain? Lekhpal ko Collector ya Tahsildar ya Qanungo ka order chahiye.", "Lekin 2 cases mein Lekhpal khud apni initiative pe entry kar sakta hai.", "Pehla — Division aur union of fields — jab khet baante ya jode jaate hain.", "Doosra — Minor ki age aur guardian ka naam darj karna.", "Special entries: Female tenure-holder jo male se inherit kare — Khatauni mein word Heir add hoga uske naam ke baad.", "Minor ka entry — naam ke saath Minor likhenge, aur age brackets mein. Har Khatauni mein 6 saal add hote hain age mein.", "Mutation yani Intaqal: Jab bhi ownership change hoti hai — death se ya transfer se — Revenue Officer mutation order deta hai.", "Mutation se Khatauni update hoti hai — naya tenure-holder ka naam darj hota hai.", "Khasra versus Khatauni: Khasra individual plot ka record hai, Khatauni ek tenure-holder ke saare plots ka consolidated record hai.", "Conclusion: Khatauni land revenue administration ki reedh ki haddi hai — revenue, succession, aur dispute resolution sab isi pe aadharit hain."]}, {"title": "Essay 4: Revenue Courts Jurisdiction", "badge": "Hour 3 · Sec C", "script": ["Section C Essay 4 — Revenue Courts Jurisdiction. Sections 206 to 211.", "Introduction: UP Revenue Code 2006 ne ek parallel judicial system create kiya hai — Revenue Courts — jo civil courts se alag hain.", "Bar on Civil Court Jurisdiction — Section 206.", "Koi bhi Civil Court kisi bhi suit ya application nahi sunegi jo State Government, Board, ya Revenue Court ke adjudicate karne ka maamla ho.", "Jurisdiction ka objection earliest opportunity pe uthana padega — aur sirf tab entertainable hoga jab failure of justice result hua ho.", "First Appeal — Section 207.", "Final order ya decree ke against appeal hoti hai Third Schedule mein specified court ya officer ke paas.", "Limitation period — 30 din — order ya decree ki date se.", "Second Appeal — Section 208.", "Pehle appeal ki final order ke against.", "Bahut important — Court second appeal tab hi entertain karega jab substantial question of law involved ho.", "Limitation period — 90 din — order ki date se.", "Bar Against Certain Appeals — Section 209.", "In matters mein koi appeal nahi: Chapter 11 ke orders, condonation of delay, revision rejection, stay application, orders passed with consent of parties.", "Ex-parte orders ke against bhi appeal nahi — lekin aggrieved party 30 din ke andar application de sakti hai setting aside ke liye.", "Power to Call for Records — Section 210.", "Board ya Commissioner subordinate court ka record call kar sakta hai jahan koi appeal nahi lie karti.", "Grounds: Court ne jurisdiction use nahi kiya jo uske paas tha, ya illegal action, ya material irregularity.", "Application 60 din ke andar — order ki date se.", "Ek baat — agar dono Board aur Commissioner ke paas gaye to dono nahi sun sakte — jo pehle gaya wo sunta hai.", "Board's Power of Review — Section 211.", "Board apne khud ke orders review kar sakta hai — suo motu ya application pe.", "Grounds: New important evidence, mistake apparent on face of record, ya any other sufficient reason.", "Application 90 din ke andar.", "Time limits summary: First appeal 30 days. Second appeal 90 days. Call for records 60 days. Review 90 days. Ex-parte setting aside 30 days.", "Conclusion: Revenue Courts system specialised justice deta hai land disputes ke liye — civil courts ka burden kam karta hai aur expeditious resolution ensure karta hai."]}, {"title": "Essay 5: Gram Panchayat Land Management", "badge": "Hour 3 · Sec C", "script": ["Section C Essay 5 — Gram Panchayat Land Management. Sections 59 to 72.", "Introduction: UP Revenue Code 2006 mein Gram Panchayat ko village land administration ka sabse important local body banaya gaya hai.", "Section 59 — Kaunsi zameen Gram Panchayat mein vest hoti hai?", "State Government ke control mein, following lands Gram Panchayat ko entrusted hain: pastures, wasteland, roads, paths, waterways, drains, ponds, wells — sab community lands.", "Section 60 — BPS ki role.", "BPS aur uske haath mein Superintendence, Preservation, Management, aur Control of all Gram Panchayat land hai.", "BPS ke 9 specific duties hain jaise pehle bataya.", "Section 61 — Village Tank Management.", "Agar tank ka area 0.5 acre ya kam ho — village inhabitants ke liye reserved — public use ke liye.", "Agar area 0.5 acre se zyada ho — BPS SDO ki previous approval se lease out kar sakta hai.", "Sections 63 aur 64 — Abadi Sites.", "BPS ya Gram Panchayat abadi sites allot karta hai.", "Priority order — pehle agricultural labourer aur village artisan jo SC/ST/OBC/BPL aur Gram Sabha ke resident hon.", "Phir any other labourer or artisan in Gram Sabha.", "Phir any other SC/ST/OBC/BPL person in Gram Sabha.", "Widow aur physically handicapped ko same category mein preference milti hai.", "Section 65 — Prevention of Damage.", "BPS steps le sakta hai damage prevent karne ke liye aur compensation recover kar sakta hai.", "Section 66 — Allotment of land up to 5 bigha for residential purposes.", "Section 68 aur 69 — Gaon Fund.", "Gaon Fund Gram Panchayat ka central fund hai.", "8 income sources hain: Panchayat taxes, State Government sums, Zila Parishad contribution, Tehbajari from hats aur bazars, Theka of fisheries, Garbage/dust/dung proceeds, Loans aur gifts, Any other State order.", "Cash balance Tahsil headquarters ki Sub-Treasury mein rakhi jaati hai.", "Chairman Rs. 50 tak cash hold kar sakta hai. Withdrawal Tahsildar ki authorisation se.", "Section 71 — Alternative Arrangement by Collector.", "Agar BPS kaam nahi kar rahi ya karne mein unable hai — Collector ek officer appoint kar sakta hai — not below Naib-Tahsildar rank.", "BPS ko reasonable opportunity deni hogi pehle.", "Section 136 — Ejectment of Trespassers.", "SDO GP land se trespassers ko eject kar sakta hai. Force use ho sakta hai. Prescribed rates pe damages.", "Conclusion: Gram Panchayat land management system self-governance ko strengthen karta hai aur community resources ka equitable use ensure karta hai.", "Yahi tha section C ka poora material. Ab mnemonics phir se sun lete hain."]}, {"title": "Final Revision: Mnemonics & Key Numbers", "badge": "Last 10 Min", "script": ["Final rapid fire revision — sab key points ek baar aur.", "Revenue hierarchy mnemonic — BC-CSST-NL.", "Board, Commissioner, Collector, SDO, Sub-Divisional, Tahsildar, Naib-Tahsildar, Lekhpal.", "Recovery Arrears mnemonic — AMBAL-RI.", "Arrest, Movable attachment, Bank attachment, Attachment of land, Lease or sale, Receiver, Immovable property.", "Bhumidhari Rights NOT to accrue — mnemonic KMPSR-TGSP.", "Khaliyan, Manure pits, Pasture, Singhara water, River bed. Taungya, Grove, Sullage. Pond or Tank, Public purpose.", "Classes of Tenure — B2AG.", "BTR, BNTR, Asami, Government Lessee.", "Gaon Fund income — 8 sources — PSZTHGLA.", "Panchayat tax, State sums, Zila Parishad, Tehbajari, Hats or melas, Garbage, Loan or gift, Any other State order.", "Exempt from movable attachment — WTR.", "Wearing apparel, Tools and cattle and seeds, Religious articles.", "Ab key numbers rapid fire.", "Khatauni — 6 saal. Kisan Bahi false affidavit — 3 saal jail. Exchange — same district, Collector permission.", "Escheat — 3 saal claimant ke liye, 1 saal suit ke liye. Abandonment — 3 agricultural years.", "Lease of holding — maximum 10 saal. Receiver order — 2 hafte mein notice nahi to vacate.", "SC/ST transfer — Collector ki written permission. Section 80 declaration — 45 working days.", "Asami — heritable not transferable. BNTR — 5 saal baad BTR. Revenue Court first appeal — 30 din.", "Second appeal — 90 din, substantial question of law zaroori. Call for records — 60 din. Review — 90 din.", "BPS alternative arrangement — not below Naib-Tahsildar. Disabled person lease — maximum 3 saal.", "Void transfer consequences — State Government mein vest, free from all encumbrances.", "Section B top choices — Exchange, Gaon Fund, Kisan Bahi, Abandonment, Recovery, Male Succession.", "Section C top choices — Asami categories, Classes of Tenure, Revenue Courts.", "Bhai, ye sab yaad kar liya to 70 plus marks pakka hain.", "Exam hall mein — pehle Section C try karo jab fresh ho. Ek ek point seedha likho, section numbers daalo.", "Teri mehnat rang laayegi. All the best! Go ace it!"]}]</script>
+<script>
+const EP = JSON.parse(document.getElementById('__data').textContent);
+const au = document.getElementById('au');
+const $ = id => document.getElementById(id);
+const speeds = [1, 1.25, 1.5, 1.75, 0.85];
+let si = 0, cur = 0, sentEls = [], bounds = [], cache = {}, pending = {}, dragging = false;
+
+function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+const savedSpeed = +ls('k5004-speed'); if (savedSpeed) { si = Math.max(0, speeds.indexOf(savedSpeed)); }
+const done = new Set(JSON.parse(ls('k5004-done') || '[]'));
+
+function fmt(t) { if (!isFinite(t)) return '0:00'; t = Math.floor(t); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+function status(html) { $('status').innerHTML = html || ''; }
+function showErr(msg) { const e = $('err'); e.textContent = msg; e.style.display = msg ? 'block' : 'none'; }
+
+function fetchEp(i) { return Promise.resolve('audio/ep' + String(i + 1).padStart(2, '0') + '.mp3'); }
+
+function renderEps() {
+  $('eps').innerHTML = '';
+  EP.forEach((e, i) => {
+    const b = document.createElement('button');
+    b.className = 'ep' + (i === cur ? ' on' : '');
+    b.innerHTML = '<span class="n">' + (i + 1) + '</span><span><div class="et"></div><div class="eb"></div></span>' +
+      (done.has(i) ? '<span class="ok">✓ heard</span>' : '');
+    b.querySelector('.et').textContent = e.title;
+    b.querySelector('.eb').textContent = e.badge;
+    b.onclick = () => load(i, true);
+    $('eps').appendChild(b);
+  });
+}
+
+function renderTranscript() {
+  const e = EP[cur];
+  $('tr').innerHTML = ''; sentEls = []; bounds = [];
+  const total = e.script.reduce((a, s) => a + s.length + 1, 0);
+  let acc = 0;
+  e.script.forEach((s, j) => {
+    const d = document.createElement('div');
+    d.className = 's'; d.textContent = s;
+    const start = acc / total; acc += s.length + 1;
+    bounds.push([start, acc / total]);
+    d.onclick = () => { if (au.duration) { au.currentTime = start * au.duration; if (au.paused) au.play(); } };
+    $('tr').appendChild(d); sentEls.push(d);
+  });
+  $('trHead').textContent = 'Transcript · ' + e.title;
+}
+
+let lastIdx = -1;
+function highlight() {
+  if (!au.duration) return;
+  const p = au.currentTime / au.duration;
+  let idx = bounds.findIndex(b => p >= b[0] && p < b[1]);
+  if (idx < 0) idx = bounds.length - 1;
+  if (idx === lastIdx) return;
+  lastIdx = idx;
+  sentEls.forEach((el, j) => { el.classList.toggle('now', j === idx); el.classList.toggle('past', j < idx); });
+  const el = sentEls[idx];
+  const r = el.getBoundingClientRect();
+  if (r.top < 170 || r.bottom > innerHeight - 40) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function load(i, autoplay) {
+  cur = i; lastIdx = -1;
+  au.pause(); au.removeAttribute('src'); au.load();
+  $('ttl').textContent = (i + 1) + '. ' + EP[i].title;
+  $('play').textContent = '▶'; showErr('');
+  $('cur').textContent = '0:00'; $('dur').textContent = '0:00'; $('seek').value = 0;
+  renderEps(); renderTranscript();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (!autoplay) { status('Tap ▶ to play'); return; }
+  play();
+}
+
+async function play() {
+  if (au.src) { au.play(); return; }
+  const i = cur;
+  status('<span class="spin"></span>Loading…');
+  try {
+    const url = await fetchEp(i);
+    if (i !== cur) return;
+    au.src = url; au.playbackRate = speeds[si];
+    await au.play();
+    status('');
+    setMedia();
+  } catch (e) {
+    status('');
+    showErr('Audio nahi bani: ' + e.message);
+  }
+}
+
+function setMedia() {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: EP[cur].title, artist: 'K-5004 Land Laws', album: 'Law Podcast' });
+    navigator.mediaSession.setActionHandler('play', () => au.play());
+    navigator.mediaSession.setActionHandler('pause', () => au.pause());
+    navigator.mediaSession.setActionHandler('previoustrack', () => cur > 0 && load(cur - 1, true));
+    navigator.mediaSession.setActionHandler('nexttrack', () => cur < EP.length - 1 && load(cur + 1, true));
+    navigator.mediaSession.setActionHandler('seekbackward', () => au.currentTime -= 15);
+    navigator.mediaSession.setActionHandler('seekforward', () => au.currentTime += 15);
+  } catch (e) {}
+}
+
+au.addEventListener('play', () => { $('play').textContent = '⏸'; $('play').setAttribute('aria-label', 'Pause'); });
+au.addEventListener('pause', () => { $('play').textContent = '▶'; $('play').setAttribute('aria-label', 'Play'); });
+au.addEventListener('loadedmetadata', () => { $('dur').textContent = fmt(au.duration); });
+au.addEventListener('timeupdate', () => {
+  $('cur').textContent = fmt(au.currentTime);
+  if (!dragging && au.duration) $('seek').value = Math.round(au.currentTime / au.duration * 1000);
+  highlight();
+});
+au.addEventListener('ended', () => {
+  done.add(cur); ls('k5004-done', JSON.stringify([...done]));
+  if (cur < EP.length - 1) load(cur + 1, true); else { renderEps(); status('Sab episodes ho gaye! All the best 🔥'); }
+});
+
+$('play').onclick = () => au.src && !au.paused ? au.pause() : play();
+$('prev').onclick = () => cur > 0 && load(cur - 1, true);
+$('next').onclick = () => cur < EP.length - 1 && load(cur + 1, true);
+$('back').onclick = () => { au.currentTime = Math.max(0, au.currentTime - 15); };
+$('fwd').onclick = () => { au.currentTime = Math.min(au.duration || 0, au.currentTime + 15); };
+$('speed').onclick = () => { si = (si + 1) % speeds.length; au.playbackRate = speeds[si]; $('speed').textContent = speeds[si] + '×'; ls('k5004-speed', speeds[si]); };
+$('speed').textContent = speeds[si] + '×';
+$('seek').addEventListener('input', () => { dragging = true; if (au.duration) $('cur').textContent = fmt($('seek').value / 1000 * au.duration); });
+$('seek').addEventListener('change', () => { dragging = false; if (au.duration) au.currentTime = $('seek').value / 1000 * au.duration; });
+document.addEventListener('keydown', e => {
+  if (e.key === ' ') { e.preventDefault(); $('play').click(); }
+  else if (e.key === 'ArrowRight') $('fwd').click();
+  else if (e.key === 'ArrowLeft') $('back').click();
+});
+
+const startEp = Math.min(EP.length - 1, Math.max(0, parseInt(new URLSearchParams(location.search).get('ep') || '0', 10) || 0));
+load(startEp, false);
+</script>
+</body>
+</html>
